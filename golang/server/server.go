@@ -56,6 +56,7 @@ func getDefaultSharedLibPath() string {
 }
 
 func predict(inputData []float32) []int64{
+	// Mutex to prevent race condition
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -81,6 +82,8 @@ func predict(inputData []float32) []int64{
 }
 
 func initModel(){
+	// This function loads the model once and establishes a session
+	
 	// Set the shared library path for ORT
     ort.SetSharedLibraryPath(getDefaultSharedLibPath())
     
