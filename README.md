@@ -7,7 +7,6 @@ This project involves training a simple machine learning (ML) model in Python, c
 
 - `golang/`: Contains Go server for serving the trained model.
 - `images/`: Test image
-- `models/`: Stored .onnx models
 - `python/`: Contains Python script for training the ML model.
 
 ### Python
@@ -42,6 +41,15 @@ go build -o go-serving main.go
 3. **Run the server**:
 ```bash
 ./go-serving
+```
+Alternatively, this can be ran using Docker. <br>
+1. **Build the Docker image**
+```bash
+docker build -t go-serving:latest .
+```
+2. **Run Docker container**
+```bash
+docker run -p 8080:8080 go-serving:latest
 ```
 
 Open a new terminal and paste the following request:
