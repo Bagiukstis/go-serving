@@ -109,7 +109,7 @@ func initModel(){
     }
 
     // Load the model and create the session
-    session, err = ort.NewAdvancedSession("../models/rf_iris.onnx",
+    session, err = ort.NewAdvancedSession("./models/rf_iris.onnx",
         []string{"X"}, []string{"output_label"},
         []ort.ArbitraryTensor{inputTensor}, []ort.ArbitraryTensor{outputTensor}, nil)
     if err != nil {

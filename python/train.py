@@ -15,13 +15,13 @@ clr.fit(X_train, y_train)
 from skl2onnx import to_onnx
 
 onx = to_onnx(clr, X[:1])
-with open("models/rf_iris.onnx", "wb") as f:
+with open("golang/models/rf_iris.onnx", "wb") as f:
     f.write(onx.SerializeToString())
 
 # Compute the prediction with onnxruntime.
 import onnxruntime as rt
 
-sess = rt.InferenceSession("models/rf_iris.onnx", providers=["CPUExecutionProvider"])
+sess = rt.InferenceSession("golang/models/rf_iris.onnx", providers=["CPUExecutionProvider"])
 input_name = sess.get_inputs()[0].name
 label_name = sess.get_outputs()[0].name
 pred_onx = sess.run([label_name], {input_name: X_test.astype(np.float32)})[0]
