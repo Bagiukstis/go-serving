@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"runtime"
 	"sync"
@@ -29,6 +30,18 @@ var (
     outputTensor  *ort.Tensor[int64]
 	mutex sync.Mutex
 )
+
+// Gets the preferred outbound IP of machine the server runs at
+func getOutboundIP() (net.IP, error) {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP, nil
+}
 
 func getDefaultSharedLibPath() string {
 	// For now, we only include libraries for x86_64 windows, ARM64 darwin, and
@@ -193,13 +206,22 @@ func StartServer() {
 
 	initModel()
     
-	log.Println("Starting the server at http://localhost:8080/")
+	ip, err := getOutboundIP()
+	if err != nil {
+		log.Println("Error getting outbound IP:", err)
+		return
+	}
+	
+	addr := fmt.Sprintf("%s:8080", ip)
+
+	log.Printf("Starting the server on %s\n", addr)
+
 	http.HandleFunc("/echo", echoHandler)
 	http.HandleFunc("/inference", inferenceHandler)
     
     log.Println("Available endpoints: /echo, /inference")
     
-    if err := http.ListenAndServe(":8080", nil); err != nil {
+    if err := http.ListenAndServe(addr, nil); err != nil {
         log.Fatalf("Server failed to start: %v", err)
     }
 	defer cleanup()
