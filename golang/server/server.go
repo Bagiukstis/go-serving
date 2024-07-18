@@ -31,6 +31,22 @@ var (
 	mutex sync.Mutex
 )
 
+// healthHandler responds with a simple status message
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+    // Check the request method
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+    
+    // Set the response header content type
+    w.Header().Set("Content-Type", "application/json")
+    
+    // Write the response
+    w.WriteHeader(http.StatusOK)
+    fmt.Fprintf(w, `{"status": "healthy"}`)
+}
+
 // Gets the preferred outbound IP of machine the server runs at
 func getOutboundIP() (net.IP, error) {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
@@ -215,7 +231,8 @@ func StartServer() {
 	addr := fmt.Sprintf("%s:8080", ip)
 
 	log.Printf("Starting the server on %s\n", addr)
-
+	
+	http.HandleFunc("/", healthHandler)
 	http.HandleFunc("/echo", echoHandler)
 	http.HandleFunc("/inference", inferenceHandler)
     
